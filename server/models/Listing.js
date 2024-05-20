@@ -76,7 +76,7 @@ const ListingSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { Timestamps: true }
+  { timestamps: true }
 );
 
 const Listing = mongoose.model('Listing', ListingSchema);

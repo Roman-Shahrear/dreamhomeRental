@@ -84,3 +84,14 @@ export const getListing = async (req, res, next) => {
         console.log(err);
     };
 };
+
+/* --------! Get Listing Details By lsitingId !------------ */
+export const getListingDetails = async (req, res, next) => {
+  try {
+    const { listingId } = req.params;
+    const listing = await Listing.findById(listingId).populate("creator");
+    res.status(202).json(listing);
+  } catch (err) {
+    res.status(404).json({message: `Listing can nor found`, error: err.message});
+  }
+}
