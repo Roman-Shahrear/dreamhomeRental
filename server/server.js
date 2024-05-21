@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "../server/routes/auth.js";
 import listingRoutes from '../server/routes/listing.js';
+import bookingRouter from '../server/routes/booking.js';
+import userRouter from '../server/routes/user.js';
 
 dotenv.config();
 const app = express();
@@ -16,8 +18,9 @@ app.use(express.static("public"));
 
 /* -----Routes----- */
 app.use("/api/auth", authRoutes);
-app.use('/api/properties', listingRoutes)
-
+app.use('/api/properties', listingRoutes);
+app.use('/api/bookings', bookingRouter);
+app.use('/api/users', userRouter);
 /* -----Mongoose Setup----- */
 mongoose
   .connect(process.env.MONGO_URL)

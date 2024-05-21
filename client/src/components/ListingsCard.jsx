@@ -6,7 +6,9 @@ import {
   Favorite,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setWishList } from "../redux/state";
+import IconButton from '@mui/material/IconButton';
 
 const ListingsCard = ({
   listingId,
@@ -29,8 +31,7 @@ const ListingsCard = ({
   const goToPrevSlide = () => {
     setCurrentIndex(
       (prevIndex) =>
-        (prevIndex - 1 + listingPhotoPaths.length) % listingPhotoPaths.length
-    );
+        (prevIndex - 1 + listingPhotoPaths.length) % listingPhotoPaths.length);
   };
 
   const goToNextSlide = () => {
@@ -39,8 +40,31 @@ const ListingsCard = ({
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // Add to WishList
+  const user = useSelector((state) => state.user);
+  const wishList = user?.wishList || [];
+
+  const isLiked = wishList?.find((item) => item._id === listingId);
+
+  const interactWishList = async () => {
+    if (user?._id !== creator._id) {
+      const response = await fetch(`/api/users/${user?._id}/${listingId}`, {
+        method: "PATCH",
+        header: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      dispatch(setWishList(data.wishList));
+    } else {
+      return;
+    }
+  };
   return (
-    <div className="listing-card"
+    <div
+      className="listing-card"
       onClick={() => {
         navigate(`/properties/${listingId}`);
       }}
@@ -82,10 +106,39 @@ const ListingsCard = ({
         {city}, {province}, {country}
       </h3>
       <p>{category}</p>
-      <p>{type}</p>
-      <p>
-        <span>${price}</span> per night
-      </p>
+
+      {!booking ? (
+        <>
+          <p>{type}</p>
+          <p>
+            <span>${price}</span> per night
+          </p>
+        </>
+      ) : (
+        <>
+          <p>
+            {startDate} - {endDate}
+          </p>
+          <p>
+            <span>${totalPrice}</span> total
+          </p>
+        </>
+      )}
+
+    <IconButton
+        className="favorite"
+        onClick={(e) => {
+          e.stopPropagation();
+          interactWishList();
+        }}
+        disabled={!user}
+      >
+        {isLiked ? (
+          <Favorite sx={{ color: "red" }} />
+        ) : (
+          <Favorite sx={{ color: "white" }} />
+        )}
+      </IconButton>
     </div>
   );
 };

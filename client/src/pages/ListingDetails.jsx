@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "../styles/ListingDetails.scss";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
@@ -7,6 +7,7 @@ import { DateRange } from "react-date-range";
 import { facilities } from "../data";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import { useSelector } from "react-redux";
 
 const ListingDetails = () => {
   const [loading, setLoading] = useState(true);
@@ -47,6 +48,36 @@ const ListingDetails = () => {
   const start = new Date(dateRange[0].startDate);
   const end = new Date(dateRange[0].endDate);
   const dayCount = Math.round(end - start) / (1000 * 60 * 60 * 24); // Calculate the difference in day unit
+  
+  // Submit Booking
+  const customerId = useSelector((state) => state?.user?._id);
+  const navigate = useNavigate();
+
+  const handleSubmitBooking = async () => {
+    try {
+      const bookingForm = {
+        customerId,
+        listingId,
+        hostId: listing.creator._id,
+        startDate: dateRange[0].startDate.toDateString(),
+        endDate: dateRange[0].endDate.toDateString(),
+        totalPrice: listing.price * dayCount,
+      }
+      const response = await fetch('/api/bookings/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingForm)
+      });
+
+      if(response.ok) {
+        navigate(`/${customerId}/trips`);
+      }
+    } catch (error) {
+      console.log(`Submit Booking Failed`, error.message);
+    }
+  };
   return loading ? (
     <Loader />
   ) : (
@@ -132,7 +163,7 @@ const ListingDetails = () => {
               <p>Start Date: {dateRange[0].startDate.toDateString()}</p>
               <p>End Date: {dateRange[0].endDate.toDateString()}</p>
 
-              <button className="button" type="submit">
+              <button className="button" type="submit" onClick={handleSubmitBooking}>
                 BOOKING
               </button>
             </div>

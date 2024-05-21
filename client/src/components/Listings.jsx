@@ -66,8 +66,9 @@ const Listings = () => {
               type,
               price,
               booking=false
-            }) => (
+            }, index) => (
               <ListingsCard
+                key={index}
                 listingId={_id}
                 creator={creator}
                 listingPhotoPaths={listingPhotoPaths}
