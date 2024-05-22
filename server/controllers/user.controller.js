@@ -37,3 +37,27 @@ export const interactWishlist = async (req, res, next) => {
         res.status(404).json({ error: error.message});
     }
 }
+
+/* ---- Get Property List ---- */
+export const getPropertyList = async (req, res, next) => {
+    try {
+        const { userId } = req.params
+        const properties = await Listing.find({ creator: userId }).populate('creator'); 
+        res.status(202).json(properties);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ message: 'Can not find Properties!', error: error.message });
+    };
+};
+
+/* ---- Get Reservation List ---- */
+export const getReservationList = async (req, res, next) => {
+    try {
+        const { userId } = req.params
+        const reservation = await Booking.find({ hostId: userId }).populate('customerId hostId listingId'); 
+        res.status(202).json(reservation);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ message: 'Can not find reservations!', error: error.message });
+    };
+};
